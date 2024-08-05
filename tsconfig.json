@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "esnext",
+    "lib": [
+      "esnext"
+    ],
+    "alwaysStrict": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "preserveConstEnums": true,
+    "moduleResolution": "Bundler",
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "declaration": true,
+    "skipLibCheck": true,
+    "types": [
+      "@cloudflare/workers-types"
+    ],
+    "customConditions": [
+      "./workerd",
+      "worker",
+      "browser"
+    ]
+  }
+}

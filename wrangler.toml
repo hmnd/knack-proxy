@@ -1,0 +1,5 @@
+name = "knack-sec"
+account_id = "54f3bbcbb45334183c9b4b568cea26d1"
+compatibility_date = "2024-08-05"
+main = "src/index.ts"
+routes = [{ pattern = "*.knack.work/*", zone_name = "knack.work" }]
