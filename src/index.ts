@@ -22,15 +22,6 @@ export default {
       .replace(/--/g, ".");
     const origin = request.headers.get("origin")?.replace(/https?:\/\//, "");
 
-    // prevent CORS requests to builder from non-builder origins
-    if (
-      url.pathname.startsWith("/v1") &&
-      origin &&
-      !builderSubdomains.some((sub) => origin.startsWith(sub))
-    ) {
-      return new Response("Not Found", { status: 404 });
-    }
-
     let account: string, app: string;
     if (originalPath.startsWith("/live-app")) {
       [, account, app] = originalPath.split("/").slice(1);
@@ -77,6 +68,14 @@ export default {
       } else {
         newHeaders.set("set-cookie", newCookie);
       }
+    }
+    // prevent cookies from being sent to API from non-builder origins
+    if (
+      url.pathname.startsWith("/v1") &&
+      origin &&
+      !builderSubdomains.some((sub) => origin.startsWith(sub))
+    ) {
+      newHeaders.delete("Access-Control-Allow-Credentials");
     }
 
     return new Response(respText, { ...resp, headers: newHeaders });
