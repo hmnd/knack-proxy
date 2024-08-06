@@ -1,7 +1,6 @@
 const builderSubdomains = ["dashboard", "builder", "builder-next"];
 
-// replaces references to knack.com with knack.work for builder assets
-const cleanBuilderResponse = (url: URL, respText: string) => {
+const replaceKnackReferences = (url: URL, respText: string) => {
   if (
     builderSubdomains.some((sub) => url.hostname.startsWith(sub)) ||
     url.hostname.startsWith("assets.public")
@@ -21,15 +20,15 @@ export default {
     url.hostname = url.hostname
       .replace("knack.work", "knack.com")
       .replace(/--/g, ".");
+    const origin = request.headers.get("origin")?.replace(/https?:\/\//, "");
 
-    // handle builder api requests
-    if (url.pathname.startsWith("/v1")) {
-      const origin = request.headers.get("origin")?.replace(/https?:\/\//, "");
-      // prevent CORS requests to builder from non-builder origins
-      if (origin && !builderSubdomains.some((sub) => origin.startsWith(sub))) {
-        return new Response("Not Found", { status: 404 });
-      }
-      return fetch(url.toString(), request);
+    // prevent CORS requests to builder from non-builder origins
+    if (
+      url.pathname.startsWith("/v1") &&
+      origin &&
+      !builderSubdomains.some((sub) => origin.startsWith(sub))
+    ) {
+      return new Response("Not Found", { status: 404 });
     }
 
     let account: string, app: string;
@@ -39,6 +38,7 @@ export default {
       account = originalHostname.split(".")[0];
       app = originalPath.split("/")[1];
     }
+    // replaces references to knack.com with knack.work for builder assets
 
     const liveAppPath = `/live-app/${account}/${app}`;
     url.pathname = originalPath.replace(/^\/live-app\/.+?\/.+?\//, "/");
@@ -58,7 +58,7 @@ export default {
       const script = `Knack.isOnNonKnackDomain = () => false;`;
       respText = script + respText;
     }
-    respText = cleanBuilderResponse(url, respText);
+    respText = replaceKnackReferences(url, respText);
 
     const newHeaders = new Headers(resp.headers);
     const setCookie = newHeaders.get("set-cookie");
